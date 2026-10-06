@@ -40,11 +40,15 @@ When I ran pytest I got a "No module named 'logic_utils'" error, so Claude added
   and what it showed you about your code.
 - Did AI help you design or understand any tests? How?
 
+I decided a bug was really fixed when there was a pytest test for it that passed and the game also behaved right when I played it. One test I ran was `test_new_game_after_win_lets_you_play_again`, which wins a game and then clicks New Game. It passing showed me that the new `start_new_game()` function really resets the game, because the old New Game button never reset the status and the game stayed stuck on "You already won." I also found a bug myself where pressing Enter didn't submit my guess, so we added `test_enter_submits_guess`. AppTest can't press a real Enter key, so the test checks that the guess box and Submit button are inside a form (which is what makes Enter work) and that submitting the form gives the right hint. I also tested it by hand in the browser. Claude helped me write the tests using Streamlit's AppTest, which runs the app without a browser and clicks the buttons for you. It also explained why my first pytest run failed with "No module named 'logic_utils'" and the difference between `pytest` and `python -m pytest`.
+
 ---
 
 ## 4. What did you learn about Streamlit and state?
 
 - How would you explain Streamlit "reruns" and session state to a friend who has never used Streamlit?
+
+Every time you click a button or type something, Streamlit runs the whole Python file again from top to bottom. That means normal variables get reset every time, so the game would forget the secret number and your attempts. Session state is like a notebook that Streamlit keeps between reruns, so anything you save in `st.session_state` is still there after the next click. The tricky part is that you also have to reset it yourself when you want a fresh start, which is why New Game was broken.
 
 ---
 
@@ -52,5 +56,8 @@ When I ran pytest I got a "No module named 'logic_utils'" error, so Claude added
 
 - What is one habit or strategy from this project that you want to reuse in future labs or projects?
   - This could be a testing habit, a prompting strategy, or a way you used Git.
+  - Asking the AI to explain its changes, like why it changed the Hard range or how `st.empty()` works, instead of just accepting them. That's how I caught changes I didn't fully agree with.
 - What is one thing you would do differently next time you work with AI on a coding task?
+  - I would check which Python version and environment the AI is using at the start, because it ran the tests with Python 3.14 instead of the project's 3.13 .venv. I would also avoid editing a file while the AI is changing it, since I accidentally overwrote its comments in app.py.
 - In one or two sentences, describe how this project changed the way you think about AI generated code.
+  - AI generated code can look finished and still have a lot of hidden bugs, so I need to test it and play with it myself instead of trusting it. AI is really helpful for finding and explaining bugs, but I still have to question its suggestions and check that they fit my project.

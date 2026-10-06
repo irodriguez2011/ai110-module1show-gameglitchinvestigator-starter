@@ -160,3 +160,20 @@ def test_prompt_shows_difficulty_range():
     at = start_app()
     at.sidebar.selectbox[0].select("Easy").run()
     assert "between 1 and 20" in at.info[0].value
+
+def test_enter_submits_guess():
+    # Enter used to do nothing because the text box wasn't in a form.
+    # AppTest can't press a real Enter key, so this checks the guess box and
+    # Submit button are in a form (which makes Enter submit) and that
+    # submitting the form processes the guess.
+    at = start_app(secret=50)
+    forms = at.get("form")
+    assert len(forms) == 1
+    form = forms[0]
+    assert len(form.text_input) == 1
+    assert len(form.button) == 1
+
+    form.text_input[0].input("40")
+    form.button[0].click().run()
+    assert at.session_state.history == [40]
+    assert at.warning[0].value.endswith("Go HIGHER!")
